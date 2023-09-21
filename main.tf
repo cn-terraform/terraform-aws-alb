@@ -248,6 +248,13 @@ resource "aws_lb_listener" "lb_http_listeners" {
     }
   }
 
+  dynamic "lifecycle" {
+    for_each = (lookup(each.value, "type", "") == "" || lookup(each.value, "type", "") == "forward") ? [1] : []
+    replace_triggered_by {
+      target_group_id = aws_lb_target_group.lb_http_tgs[each.key].id
+    }
+  }
+
   tags = var.tags
 }
 
@@ -294,6 +301,13 @@ resource "aws_lb_listener" "lb_https_listeners" {
     content {
       target_group_arn = aws_lb_target_group.lb_https_tgs[each.key].arn
       type             = "forward"
+    }
+  }
+
+  dynamic "lifecycle" {
+    for_each = (lookup(each.value, "type", "") == "" || lookup(each.value, "type", "") == "forward") ? [1] : []
+    replace_triggered_by {
+      target_group_id = aws_lb_target_group.lb_https_tgs[each.key].id
     }
   }
 
